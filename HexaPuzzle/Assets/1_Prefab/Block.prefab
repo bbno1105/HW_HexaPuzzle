@@ -88,3 +88,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84a5d58f7e4dff94f86a5ffa84c4b733, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  blue: blue_normal
+  green: green_normal
+  orange: orange_normal
+  pupple: purple_normal
+  red: red_normal
+  yellow: yellow_normal

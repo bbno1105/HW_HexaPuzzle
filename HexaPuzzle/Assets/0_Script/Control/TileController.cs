@@ -15,7 +15,7 @@ public class TileController : SingletonBehaviour<TileController>
 
     [SerializeField] Vector2 startPosition;
 
-    int tileCount = 1;
+    int tileCount = 0;
     List<Tile> tileList = new List<Tile>();
     public List<Tile> TileList { get { return tileList; } }
 
@@ -74,33 +74,134 @@ public class TileController : SingletonBehaviour<TileController>
         GameObject newTileObject = Instantiate(tilePrefab, _tilePosition, Quaternion.identity, TileMapParent);
         Tile newTile = newTileObject.GetComponent<Tile>();
         newTile.ID = tileCount++; // 타일 ID 설정 (좌하단부터 순서대로 생성)
+
+        if (newTile.ID == 87) newTile.TileType = TILE_TYPE.CREATE;
+
         TileList.Add(newTile);
     }
 
-    void CheckTileList()
+    public void CheckTileList()
     {
+        //for (int i = TileList.Count - 1; 0 <= i; i--) // 위에서부터, 오른쪽부터 판단
         for (int i = 0; i < TileList.Count; i++)
         {
-            CheckTile(TileList[i]);
+            if (TileList[i].NowBlock) // 블록이 있는 경우
+            {
+                if (TileList[i].NowBlock.CanMove) // 블록이 이동할 수 있는 경우
+                {
+                    CheckTile(TileList[i]); // 이동 가능한 공간이 있는지 판단
+                }
+            }
+            else if (TileList[i].TileType == TILE_TYPE.CREATE) // 블록없는 생성타일 = 블록 생성
+            {
+                TileList[i].NowBlock = BlockController.Instance.CreateBlock(TileList[i].transform.position);
+            }
         }
     }
 
     void CheckTile(Tile _checkTile)
     {
-        if (_checkTile.NowBlock == false)
+        int topID = _checkTile.TrapAround[(int)TRAP_AROUND.TOP];
+        int topLeftID = _checkTile.TrapAround[(int)TRAP_AROUND.TOP_LEFT];
+        int topRightID = _checkTile.TrapAround[(int)TRAP_AROUND.TOP_RIGHT];
+        int bottomID = _checkTile.TrapAround[(int)TRAP_AROUND.BOTTOM];
+        int bottomLeftID = _checkTile.TrapAround[(int)TRAP_AROUND.BOTTOM_LEFT];
+        int bottomRightID = _checkTile.TrapAround[(int)TRAP_AROUND.BOTTOM_RIGHT];
+
+
+        if (bottomID != -1)
         {
-            if (TileList[_checkTile.Bottom].NowBlock == false)
+            if (TileList[bottomID].NowBlock == false) // 내 아래에 블럭이 없다.
             {
-                _checkTile.NowBlock.MoveTile.Enqueue(_checkTile.Bottom);
-            }
-            else if (TileList[_checkTile.BottomLeft].NowBlock == false)
-            {
-
-            }
-            else if (TileList[_checkTile.BottomRight].NowBlock == false)
-            {
-
+                TileSetting(_checkTile, TileList[bottomID]);
+                return;
             }
         }
+
+        if (topID != -1)
+        {
+            if (TileList[topID].NowBlock) return; // 내 위에 블럭이 있으면 넘김
+        }
+
+        switch (Random.Range(0,2))
+        {
+            case 0:
+                if (_checkTile.TrapAround[(int)TRAP_AROUND.BOTTOM_LEFT] != -1)
+                {
+                    if (TileList[bottomLeftID].NowBlock == false && TileList[topLeftID].NowBlock == false) // 왼쪽 아래/위 블럭이 없다.
+                    {
+                        TileSetting(_checkTile, TileList[bottomLeftID]);
+                        return;
+                    }
+                }
+                else if (bottomRightID != -1)
+                {
+                    if (TileList[bottomRightID].NowBlock == false && TileList[topRightID].NowBlock == false) // 오른쪽 아래/위 블럭이 없다.
+                    {
+                        TileSetting(_checkTile, TileList[bottomRightID]);
+                        return;
+                    }
+                }
+                break;
+            case 1:
+                if (bottomRightID != -1)
+                {
+                    if (TileList[bottomRightID].NowBlock == false && TileList[topRightID].NowBlock == false) // 오른쪽 아래/위 블럭이 없다.
+                    {
+                        TileSetting(_checkTile, TileList[bottomRightID]);
+                        return;
+                    }
+                }
+                else if (_checkTile.TrapAround[(int)TRAP_AROUND.BOTTOM_LEFT] != -1)
+                {
+                    if (TileList[bottomLeftID].NowBlock == false && TileList[topLeftID].NowBlock == false) // 왼쪽 아래/위 블럭이 없다.
+                    {
+                        TileSetting(_checkTile, TileList[bottomLeftID]);
+                        return;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+
+        //if (_checkTile.BottomLeft != -1)
+        //{
+        //    if (TileList[_checkTile.BottomLeft].NowBlock == false && TileList[_checkTile.TopLeft].NowBlock == false) // 왼쪽 아래/위 블럭이 없다.
+        //    {
+        //        TileSetting(_checkTile, TileList[_checkTile.BottomLeft]);
+        //        return;
+        //    }
+        //}
+        
+        //if(_checkTile.BottomRight != -1)
+        //{
+        //    if (TileList[_checkTile.BottomRight].NowBlock == false && TileList[_checkTile.TopRight].NowBlock == false) // 오른쪽 아래/위 블럭이 없다.
+        //    {
+        //        TileSetting(_checkTile, TileList[_checkTile.BottomRight]);
+
+        //        //Vector2 startPosition = _checkTile.NowBlock.transform.position;
+        //        //Vector2 endPosition = TileList[_checkTile.BottomRight].transform.position;
+
+        //        //TileList[_checkTile.BottomRight].NowBlock = _checkTile.NowBlock;
+        //        //_checkTile.NowBlock = null;
+
+        //        //TileList[_checkTile.BottomRight].NowBlock.MoveSetting(startPosition, endPosition);
+        //        return;
+        //    }
+        //}
     }
+
+    public void TileSetting(Tile _tile, Tile _nextTile)
+    {
+        Vector2 startPosition = _tile.NowBlock.transform.position;
+        Vector2 endPosition = _nextTile.transform.position;
+
+        _nextTile.NowBlock = _tile.NowBlock;
+        _tile.NowBlock = null;
+
+        _nextTile.NowBlock.MoveSetting(startPosition, endPosition);
+    }
+
+
 }
