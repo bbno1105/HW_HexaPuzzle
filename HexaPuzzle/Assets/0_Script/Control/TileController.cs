@@ -8,10 +8,19 @@ public class TileController : SingletonBehaviour<TileController>
     [SerializeField] GameObject tilePrefab;
 
     [SerializeField] int mapSizeY = 21;
+    public int MapSizeY { get { return mapSizeY; } }
+
     [SerializeField] int mapSizeX = 9;
+    public int MaxSizeX { get { return mapSizeX; } }
+
     [SerializeField] Vector2 startPosition;
 
-    int tileCount = 0;
+    int tileCount = 1;
+    List<Tile> tileList = new List<Tile>();
+    public List<Tile> TileList { get { return tileList; } }
+
+    int maxTileCount;
+    public int MaxTileCount { get { return maxTileCount; } }
 
     float tileSize;
     float distanceX;
@@ -27,6 +36,8 @@ public class TileController : SingletonBehaviour<TileController>
         UnityEngine.Debug.Log("distanceY : " + distanceY);
 
         startPosition = Vector2.zero;
+        maxTileCount = (mapSizeY / 2) * (mapSizeX / 2 + 1) + (mapSizeY / 2 + 1) * (mapSizeX / 2);
+        UnityEngine.Debug.Log("maxTileCount : " + maxTileCount);
     }
 
     void Start()
@@ -57,9 +68,39 @@ public class TileController : SingletonBehaviour<TileController>
         }
     }
 
+    // 타일 생성
     void CreateTile(Vector2 _tilePosition)
     {
-        GameObject newTile = Instantiate(tilePrefab, _tilePosition, Quaternion.identity, TileMapParent);
-        newTile.GetComponent<Tile>().ID = tileCount++;
+        GameObject newTileObject = Instantiate(tilePrefab, _tilePosition, Quaternion.identity, TileMapParent);
+        Tile newTile = newTileObject.GetComponent<Tile>();
+        newTile.ID = tileCount++; // 타일 ID 설정 (좌하단부터 순서대로 생성)
+        TileList.Add(newTile);
+    }
+
+    void CheckTileList()
+    {
+        for (int i = 0; i < TileList.Count; i++)
+        {
+            CheckTile(TileList[i]);
+        }
+    }
+
+    void CheckTile(Tile _checkTile)
+    {
+        if (_checkTile.NowBlock == false)
+        {
+            if (TileList[_checkTile.Bottom].NowBlock == false)
+            {
+                _checkTile.NowBlock.MoveTile.Enqueue(_checkTile.Bottom);
+            }
+            else if (TileList[_checkTile.BottomLeft].NowBlock == false)
+            {
+
+            }
+            else if (TileList[_checkTile.BottomRight].NowBlock == false)
+            {
+
+            }
+        }
     }
 }
