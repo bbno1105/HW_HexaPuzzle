@@ -5,12 +5,23 @@ using UnityEngine.UI;
 
 public enum BLOCK_TYPE
 {
+    // 일반블록
     BLUE = 0,
     GREEN,
     ORANGE,
     PUPPLE,
     RED,
-    YELLOW
+    YELLOW,
+
+    // 미션블록
+    TOP_DEFAULT = 101,
+    TOP_BROKEN
+}
+
+public enum BLOCK_STATE
+{
+    STOP = 0,
+    MOVE
 }
 
 public class Block : MonoBehaviour
@@ -18,12 +29,13 @@ public class Block : MonoBehaviour
     BLOCK_TYPE blockType;
     public BLOCK_TYPE BlockType { get { return blockType; } set { blockType = value; } }
 
+    BLOCK_STATE blockState;
+    public BLOCK_STATE BlockState { get { return blockState; } set { blockState = value; } }
+
     Queue<int> moveTile = new Queue<int>();
     public Queue<int> MoveTile { get { return moveTile; } set { moveTile = value; } }
 
-    bool canMove;
-    public bool CanMove { get { return canMove; } set { canMove = value; } }
-
+    [Header("일반블록")]
     [SerializeField] string blue;
     [SerializeField] string green;
     [SerializeField] string orange;
@@ -31,34 +43,26 @@ public class Block : MonoBehaviour
     [SerializeField] string red;
     [SerializeField] string yellow;
 
+    [Header("미션블록")]
+    [SerializeField] string topDefault;
+    [SerializeField] string topBroken;
+
     Vector2 startPosition;
     Vector2 endPosition;
-    float lerpValue = 0;
+
+    float moveLerp = 0;
 
     void OnEnable()
     {
-        canMove = true;
+        BlockState = BLOCK_STATE.STOP;
         Initialize();
-    }
-
-    void Update()
-    {
-        if(canMove == false)
-        {
-            transform.position = Vector2.Lerp(startPosition, endPosition, lerpValue);
-            lerpValue += 20 * Time.deltaTime;
-
-            if (1 < lerpValue)
-            {
-                transform.position = endPosition;
-                lerpValue = 0;
-                CanMove = true;
-            }
-        }
     }
 
     void Initialize()
     {
+        startPosition = transform.position;
+        endPosition = transform.position;
+
         string resourcesName = string.Empty;
         switch (blockType)
         {
@@ -80,16 +84,60 @@ public class Block : MonoBehaviour
             case BLOCK_TYPE.YELLOW:
                 resourcesName = yellow;
                 break;
+            case BLOCK_TYPE.TOP_DEFAULT:
+                resourcesName = topDefault;
+                break;
+            case BLOCK_TYPE.TOP_BROKEN:
+                resourcesName = topBroken;
+                break;
             default:
                 break;
         }
         GetComponent<Image>().sprite = Resources.Load<Sprite>(resourcesName);
     }
 
+    void Update()
+    {
+        switch (BlockState)
+        {
+            case BLOCK_STATE.STOP:
+                {
+                    transform.position = endPosition;
+                }
+                break;
+
+            case BLOCK_STATE.MOVE:
+                {
+                    moveLerp = PlayController.Instance.GameDelayTime;
+                    transform.position = Vector2.Lerp(startPosition, endPosition, moveLerp);
+                    if (1 < moveLerp)
+                    {
+                        BlockState = BLOCK_STATE.STOP;
+                    }
+                    //if (moveLerp < PlayController.Instance.GameDelayTime)
+                    //{
+
+                    //}
+                    //else
+                    //{
+                    //    transform.position = endPosition;
+                    //    blockMove = false;
+                    //}
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    
+
     public void MoveSetting(Vector2 _startPosition, Vector3 _endPosition)
     {
         startPosition = _startPosition;
         endPosition = _endPosition;
-        canMove = false;
+        moveLerp = 0;
+        BlockState = BLOCK_STATE.MOVE;
     }
 }

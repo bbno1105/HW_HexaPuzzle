@@ -94,3 +94,5 @@ MonoBehaviour:
   pupple: purple_normal
   red: red_normal
   yellow: yellow_normal
+  topDefault: block_o_pack
+  topBroken: block_o_pack_back

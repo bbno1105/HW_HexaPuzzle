@@ -7,6 +7,20 @@ public class BlockController : SingletonBehaviour<BlockController>
     [SerializeField] List<Block> blockPool = new List<Block>();
     Queue<Block> blockPooling = new Queue<Block>();
 
+    List<BLOCK_TYPE> nowBlockType = new List<BLOCK_TYPE>();
+    public List<BLOCK_TYPE> NowBlockType { get { return nowBlockType; } set { nowBlockType = value; } }
+
+    void Awake()
+    {
+        if (StaticData.StageData.TryGetValue(21, out StageSheetData stageData))
+        {
+            for (int i = 0; i < stageData.Blcoktype.Length; i++)
+            {
+                NowBlockType.Add((BLOCK_TYPE)stageData.Blcoktype[i]);
+            }
+        }
+    }
+
     void Start()
     {
         BlockPool();
@@ -23,7 +37,7 @@ public class BlockController : SingletonBehaviour<BlockController>
         }
     }
 
-    public Block CreateBlock(Vector3 _position)
+    public Block CreateBlock(Vector3 _position, BLOCK_TYPE _type)
     {
         if(blockPooling.Count == 0)
         {
@@ -31,18 +45,10 @@ public class BlockController : SingletonBehaviour<BlockController>
         }
 
         Block newBlock = blockPooling.Dequeue();
-        newBlock.BlockType = (BLOCK_TYPE)Random.Range(0, 6); // 랜덤생성 // TODO : 나중에 계산해서 넣기
+        newBlock.BlockType = _type;
         newBlock.gameObject.transform.position = _position;
         newBlock.gameObject.SetActive(true);
 
         return newBlock;
-    }
-
-    public void CheckBlock(Block _block)
-    {
-        for (int i = 0; i < 6; i++)
-        {
-
-        }
     }
 }
