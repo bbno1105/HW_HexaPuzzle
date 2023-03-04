@@ -77,12 +77,16 @@ public class Tile : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (PlayController.Instance.PlayState != PLAYSTATE.PLAY) return;
+
         BlockController.Instance.NowTouchTile = this;
         BlockController.Instance.IsTouchBlock = true;
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        if (PlayController.Instance.PlayState != PLAYSTATE.PLAY) return;
+
         BlockController.Instance.IsTouchBlock = false;
     }
 
