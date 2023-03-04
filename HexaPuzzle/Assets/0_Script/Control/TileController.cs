@@ -25,13 +25,14 @@ public class TileController : SingletonBehaviour<TileController>
     float tileSize;
     float distanceX;
     float distanceY;
+    public float DistanceY { get { return distanceY; } }
 
     void Awake()
     {
         tileSize = tilePrefab.GetComponent<RectTransform>().sizeDelta.x;
 
-        distanceX = tileSize * 1.5f; // 블록 가로 간격
-        distanceY = tileSize / 4 * Mathf.Sqrt(3); // 블록 세로 간격 ( 1 : √3 : 2 )
+        distanceX = tileSize * 1.5f; // 타일 가로 간격
+        distanceY = tileSize / 4 * Mathf.Sqrt(3); // 타일 세로 간격 ( 1 : √3 : 2 )
 
         startPosition = Vector2.zero;
         maxTileCount = (mapSizeY / 2) * (mapSizeX / 2 + 1) + (mapSizeY / 2 + 1) * (mapSizeX / 2);
@@ -146,7 +147,7 @@ public class TileController : SingletonBehaviour<TileController>
         {
             if (TileList[bottomID].NowBlock == false)
             {
-                BlockMoveSetting(_checkTile, TileList[bottomID]);
+                BlockMove(_checkTile, TileList[bottomID]);
                 return true;
             }
         }
@@ -163,7 +164,7 @@ public class TileController : SingletonBehaviour<TileController>
                 {
                     if (TileList[bottomLeftID].NowBlock == false && TileList[topLeftID].NowBlock == false) // 왼쪽 아래/위 블럭이 없다.
                     {
-                        BlockMoveSetting(_checkTile, TileList[bottomLeftID]);
+                        BlockMove(_checkTile, TileList[bottomLeftID]);
                         return true;
                     }
                 }
@@ -171,7 +172,7 @@ public class TileController : SingletonBehaviour<TileController>
                 {
                     if (TileList[bottomRightID].NowBlock == false && TileList[topRightID].NowBlock == false) // 오른쪽 아래/위 블럭이 없다.
                     {
-                        BlockMoveSetting(_checkTile, TileList[bottomRightID]);
+                        BlockMove(_checkTile, TileList[bottomRightID]);
                         return true;
                     }
                 }
@@ -181,7 +182,7 @@ public class TileController : SingletonBehaviour<TileController>
                 {
                     if (TileList[bottomRightID].NowBlock == false && TileList[topRightID].NowBlock == false) // 오른쪽 아래/위 블럭이 없다.
                     {
-                        BlockMoveSetting(_checkTile, TileList[bottomRightID]);
+                        BlockMove(_checkTile, TileList[bottomRightID]);
                         return true;
                     }
                 }
@@ -189,7 +190,7 @@ public class TileController : SingletonBehaviour<TileController>
                 {
                     if (TileList[bottomLeftID].NowBlock == false && TileList[topLeftID].NowBlock == false) // 왼쪽 아래/위 블럭이 없다.
                     {
-                        BlockMoveSetting(_checkTile, TileList[bottomLeftID]);
+                        BlockMove(_checkTile, TileList[bottomLeftID]);
                         return true;
                     }
                 }
@@ -206,7 +207,7 @@ public class TileController : SingletonBehaviour<TileController>
     /// </summary>
     /// <param name="_tile">이동 가능한 블록이 포함된 Tile</param>
     /// <param name="_nextTile">블록이 이동할 Tile</param>
-    public void BlockMoveSetting(Tile _tile, Tile _nextTile)
+    public void BlockMove(Tile _tile, Tile _nextTile)
     {
         Vector2 startPosition = _tile.NowBlock.transform.position;
         Vector2 endPosition = _nextTile.transform.position;
@@ -217,6 +218,19 @@ public class TileController : SingletonBehaviour<TileController>
         _nextTile.NowBlock.MoveSetting(startPosition, endPosition);
     }
 
+    public void BlockSwap(Tile _tile, Tile _nextTile)
+    {
+        if (_tile == false || _nextTile == false) return;
+        if (_tile.NowBlock == false || _nextTile.NowBlock == false) return;
 
-   
+        Vector2 tilePosition = _tile.NowBlock.transform.position;
+        Vector2 nextTilePosition = _nextTile.transform.position;
+
+        Block swapBlock = _nextTile.NowBlock;
+        _nextTile.NowBlock = _tile.NowBlock;
+        _tile.NowBlock = swapBlock;
+
+        _tile.NowBlock.MoveSetting(nextTilePosition, tilePosition);
+        _nextTile.NowBlock.MoveSetting(tilePosition, nextTilePosition);
+    }
 }

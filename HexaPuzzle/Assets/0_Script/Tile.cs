@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public enum TILE_TYPE
 {
@@ -18,7 +19,7 @@ public enum TILE_AROUND
     BOTTOM_RIGHT
 }
 
-public class Tile : MonoBehaviour
+public class Tile : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     [SerializeField] TILE_TYPE tileType;
     public TILE_TYPE TileType { get { return tileType; } set { tileType = value; } }
@@ -73,4 +74,16 @@ public class Tile : MonoBehaviour
         }
         return _id;
     }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        BlockController.Instance.NowTouchTile = this;
+        BlockController.Instance.IsTouchBlock = true;
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        BlockController.Instance.IsTouchBlock = false;
+    }
+
 }

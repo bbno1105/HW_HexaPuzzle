@@ -13,7 +13,6 @@ public class MatchController : SingletonBehaviour<MatchController>
             int matchCount = 1;
 
             matchCount += CheckStraight(_tile, i, ref matchTileID);
-            matchCount += CheckStraight(_tile, i + 3, ref matchTileID);
 
             if (3 <= matchCount) return matchTileID;
         }
@@ -32,7 +31,7 @@ public class MatchController : SingletonBehaviour<MatchController>
                 if (_tile.NowBlock.BlockType == TileList[_tile.TileAround[_aroundIndex]].NowBlock.BlockType)
                 {
                     matchCount++;
-                    _matchTileID.Add(_tile.TileAround[_aroundIndex]);
+                    _matchTileID.Add(TileList[_tile.TileAround[_aroundIndex]].ID);
                     matchCount += CheckStraight(TileList[_tile.TileAround[_aroundIndex]], _aroundIndex, ref _matchTileID);
                 }
             }

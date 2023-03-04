@@ -5,8 +5,10 @@ using UnityEngine.UI;
 
 public enum BLOCK_TYPE
 {
+    EMPTY = 0,
+
     // 일반블록
-    BLUE = 0,
+    BLUE = 1,
     GREEN,
     ORANGE,
     PUPPLE,
@@ -35,6 +37,8 @@ public class Block : MonoBehaviour
     Queue<int> moveTile = new Queue<int>();
     public Queue<int> MoveTile { get { return moveTile; } set { moveTile = value; } }
 
+    Animator animator;
+
     [Header("일반블록")]
     [SerializeField] string blue;
     [SerializeField] string green;
@@ -51,6 +55,11 @@ public class Block : MonoBehaviour
     Vector2 endPosition;
 
     float moveLerp = 0;
+
+    void Awake()
+    {
+        animator = GetComponent<Animator>();
+    }
 
     void OnEnable()
     {
@@ -114,15 +123,6 @@ public class Block : MonoBehaviour
                     {
                         BlockState = BLOCK_STATE.STOP;
                     }
-                    //if (moveLerp < PlayController.Instance.GameDelayTime)
-                    //{
-
-                    //}
-                    //else
-                    //{
-                    //    transform.position = endPosition;
-                    //    blockMove = false;
-                    //}
                 }
                 break;
 
@@ -131,13 +131,22 @@ public class Block : MonoBehaviour
         }
     }
 
-    
-
     public void MoveSetting(Vector2 _startPosition, Vector3 _endPosition)
     {
         startPosition = _startPosition;
         endPosition = _endPosition;
         moveLerp = 0;
+        PlayController.Instance.GameDelayTime = 0;
         BlockState = BLOCK_STATE.MOVE;
+    }
+
+    public void DeActiveAnimation()
+    {
+        animator.SetTrigger(AnimString.IsPop);
+    }
+
+    public void DeActive()
+    {
+        gameObject.SetActive(false);
     }
 }

@@ -9,6 +9,7 @@ public class StaticData : MonoBehaviour
         SetStageData();
     }
 
+    [Tooltip("Sheet 폴더의 데이터파일을 연결시켜주세요.")]
     [SerializeField] StageSheet stageSheet;
     public static Dictionary<int, StageSheetData> StageData = new Dictionary<int, StageSheetData>();
 
