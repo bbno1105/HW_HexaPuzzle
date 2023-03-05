@@ -95,8 +95,8 @@ MonoBehaviour:
   pupple: purple_normal
   red: red_normal
   yellow: yellow_normal
-  topDefault: block_o_pack
-  topBroken: block_o_pack_back
+  topDefault: block_munchkin
+  topBroken: block_munchkin_ball
 --- !u!95 &5042396788760683757
 Animator:
   serializedVersion: 3
