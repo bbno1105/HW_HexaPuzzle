@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public enum PLAYSTATE
 {
@@ -25,11 +26,53 @@ public class PlayController : SingletonBehaviour<PlayController>
     float gameDelayTime = 0;
     public float GameDelayTime { get { return gameDelayTime; } set { gameDelayTime = value; } }
 
-
+    // 스테이지
+    [SerializeField] Block missionBlock;
+    int missionCount;
+    public int MissionCount
+    {
+        get { return missionCount; }
+        set
+        {
+            if (value < 0) value = 0;
+            missionCount = value;
+            UIManager.Instance.SetMissionCount(missionCount);
+        }
+    }
+    int playCount;
+    public int PlayCount 
+    { 
+        get { return playCount; } 
+        set 
+        {
+            if (value < 0) value = 0;
+            playCount = value; 
+            UIManager.Instance.SetPlayCount(playCount); 
+        } 
+    }
 
     private void Start()
     {
         PlayController.Instance.PlayState = PLAYSTATE.READY;
+
+        if (StaticData.StageData.TryGetValue(21, out StageSheetData stageData))
+        {
+            for (int i = 0; i < stageData.Missiontype.Length; i++)
+            {
+                missionBlock.BlockType = (BLOCK_TYPE)stageData.Missiontype[i];
+                missionBlock.Initialize();
+            }
+
+            for (int i = 0; i < stageData.Clearcount.Length ; i++)
+            {
+                MissionCount = stageData.Clearcount[i];
+            }
+
+            PlayCount = stageData.Movecount;
+        }
+
+        SoundManager.Instance.PlayBGM("BGM");
+        SoundManager.Instance.SetBGMVolume(0.5f);
     }
 
     void Update()
@@ -47,7 +90,20 @@ public class PlayController : SingletonBehaviour<PlayController>
 
                 case PLAYSTATE.PLAY: // 플레이어 조작
                     {
-
+                        if(missionCount <= 0)
+                        {
+                            // Clear
+                            UnityEngine.Debug.Log("클리어");
+                            UIManager.Instance.SetClearUI("Clear");
+                            PlayState = PLAYSTATE.END;
+                        }
+                        else if(playCount <= 0)
+                        {
+                            // GameOver
+                            UnityEngine.Debug.Log("Game Over");
+                            UIManager.Instance.SetClearUI("Clear");
+                            PlayState = PLAYSTATE.END;
+                        }
                     }
                     break;
 
@@ -55,6 +111,7 @@ public class PlayController : SingletonBehaviour<PlayController>
                     {
                         if (ThreeMatch()) // 매치 판단하여 진행
                         {
+                            PlayCount--;
                             PlayState = PLAYSTATE.FALLBLOCK;
                         }
                         else // 매치되지 않았으면 되돌리기
@@ -90,6 +147,10 @@ public class PlayController : SingletonBehaviour<PlayController>
                     break;
 
                 case PLAYSTATE.END: // 게임 종료
+                    if(Input.GetMouseButton(0))
+                    {
+                        SceneManager.LoadScene(0);
+                    }
                     break;
 
                 default:
@@ -112,12 +173,15 @@ public class PlayController : SingletonBehaviour<PlayController>
 
             List<int> check = MatchController.Instance.CheckStraightMatch(targetTile);
             
+            // 블록 터짐
             for (int j = 0; j < check.Count; j++)
             {
                 AttackMissionBlock(TileController.Instance.TileList[check[j]]);
 
                 TileController.Instance.TileList[check[j]].NowBlock.DeActiveAnimation();
                 TileController.Instance.TileList[check[j]].NowBlock = null;
+
+                SoundManager.Instance.PlaySE("POP");
 
                 isMatched = true;
             }

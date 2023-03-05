@@ -104,6 +104,7 @@ public class Tile : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
                 {
                     NowBlock.DeActiveAnimation();
                     NowBlock = null;
+                    PlayController.Instance.MissionCount--;
                 }
                 break;
             default:

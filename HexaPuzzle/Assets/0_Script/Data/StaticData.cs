@@ -6,7 +6,10 @@ public class StaticData : MonoBehaviour
 {
     void Awake()
     {
-        SetStageData();
+        if(StageData.Count == 0)
+        {
+            SetStageData();
+        }
     }
 
     [Tooltip("Sheet 폴더의 데이터파일을 연결시켜주세요.")]
