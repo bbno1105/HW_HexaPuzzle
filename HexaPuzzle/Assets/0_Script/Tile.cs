@@ -90,4 +90,24 @@ public class Tile : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         BlockController.Instance.IsTouchBlock = false;
     }
 
+    public void Damaged()
+    {
+        switch (NowBlock.BlockType)
+        {
+            case BLOCK_TYPE.TOP_DEFAULT:
+                {
+                    NowBlock.BlockType = BLOCK_TYPE.TOP_BROKEN;
+                    NowBlock.Initialize();
+                }
+                break;
+            case BLOCK_TYPE.TOP_BROKEN:
+                {
+                    NowBlock.DeActiveAnimation();
+                    NowBlock = null;
+                }
+                break;
+            default:
+                break;
+        }
+    }
 }

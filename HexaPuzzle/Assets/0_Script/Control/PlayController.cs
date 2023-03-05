@@ -105,21 +105,49 @@ public class PlayController : SingletonBehaviour<PlayController>
 
         for (int i = 0; i < TileController.Instance.TileList.Count; i++)
         {
-            if (TileController.Instance.TileList[i].NowBlock == false) continue; // 블록 유무 체크
-            if ((int)TileController.Instance.TileList[i].NowBlock.BlockType > 100) continue; // 일반 블록 체크
+            Tile targetTile = TileController.Instance.TileList[i];
 
-            List<int> check = MatchController.Instance.CheckStraightMatch(TileController.Instance.TileList[i]);
+            if (targetTile.NowBlock == false) continue; // 블록 유무 체크
+            if ((int)targetTile.NowBlock.BlockType > 100) continue; // 일반 블록 체크
+
+            List<int> check = MatchController.Instance.CheckStraightMatch(targetTile);
+            
             for (int j = 0; j < check.Count; j++)
             {
+                AttackMissionBlock(TileController.Instance.TileList[check[j]]);
+
                 TileController.Instance.TileList[check[j]].NowBlock.DeActiveAnimation();
-                //TileController.Instance.TileList[check[j]].NowBlock.gameObject.SetActive(false);
                 TileController.Instance.TileList[check[j]].NowBlock = null;
+
                 isMatched = true;
+            }
+
+            // 미션블록 데미지처리
+            for (int j = 0; j < BlockController.Instance.DamagedTile.Count; j++)
+            {
+                Tile targetBlock = BlockController.Instance.DamagedTile.Dequeue();
+                targetBlock.Damaged();
             }
         }
 
         return isMatched;
     }
 
-    
+    // 데미지
+    void AttackMissionBlock(Tile _tile)
+    {
+        for (int i = 0; i < _tile.TileAround.Length; i++)
+        {
+            if (_tile.TileAround[i] == -1) continue;
+
+            Tile target = TileController.Instance.TileList[_tile.TileAround[i]];
+            if (target.NowBlock == false) continue;
+
+            if (BLOCK_TYPE.MISSION < target.NowBlock.BlockType && target.NowBlock.IsDamaged == false)
+            {
+                target.NowBlock.IsDamaged = true;
+                BlockController.Instance.DamagedTile.Enqueue(target);
+            }
+        }
+    }
 }

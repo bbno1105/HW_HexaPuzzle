@@ -23,6 +23,9 @@ public class BlockController : SingletonBehaviour<BlockController>
     float dragDistance;
     float checkDistance;
 
+    // 공격받은 블럭
+    Queue<Tile> damagedTile = new Queue<Tile>();
+    public Queue<Tile> DamagedTile { get { return damagedTile; } set { damagedTile = value; } }
 
     void Awake()
     {
@@ -37,8 +40,6 @@ public class BlockController : SingletonBehaviour<BlockController>
 
     void Start()
     {
-        BlockPool();
-
         checkDistance = TileController.Instance.DistanceY * 2;
     }
 

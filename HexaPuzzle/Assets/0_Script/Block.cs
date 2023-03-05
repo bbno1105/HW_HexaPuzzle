@@ -16,7 +16,8 @@ public enum BLOCK_TYPE
     YELLOW,
 
     // 미션블록
-    TOP_DEFAULT = 101,
+    MISSION = 100,
+    TOP_DEFAULT,
     TOP_BROKEN
 }
 
@@ -34,8 +35,8 @@ public class Block : MonoBehaviour
     BLOCK_STATE blockState;
     public BLOCK_STATE BlockState { get { return blockState; } set { blockState = value; } }
 
-    Queue<int> moveTile = new Queue<int>();
-    public Queue<int> MoveTile { get { return moveTile; } set { moveTile = value; } }
+    //Queue<int> moveTile = new Queue<int>();
+    //public Queue<int> MoveTile { get { return moveTile; } set { moveTile = value; } }
 
     Animator animator;
 
@@ -51,10 +52,15 @@ public class Block : MonoBehaviour
     [SerializeField] string topDefault;
     [SerializeField] string topBroken;
 
+    // 블럭 이동
     Vector2 startPosition;
     Vector2 endPosition;
 
     float moveLerp = 0;
+
+    // 공격받은 블럭
+    bool isDamaged = false;
+    public bool IsDamaged { get { return isDamaged; } set { isDamaged = value; } }
 
     void Awake()
     {
@@ -64,13 +70,15 @@ public class Block : MonoBehaviour
     void OnEnable()
     {
         BlockState = BLOCK_STATE.STOP;
+        startPosition = transform.position;
+        endPosition = transform.position;
+
         Initialize();
     }
 
-    void Initialize()
+    public void Initialize()
     {
-        startPosition = transform.position;
-        endPosition = transform.position;
+        isDamaged = false;
 
         string resourcesName = string.Empty;
         switch (blockType)
@@ -140,13 +148,24 @@ public class Block : MonoBehaviour
         BlockState = BLOCK_STATE.MOVE;
     }
 
+    // 블록 터지는 연출 애니메이션
     public void DeActiveAnimation()
     {
         animator.SetTrigger(AnimString.IsPop);
     }
 
-    public void DeActive()
+    public void DeActive() // Animation Event
     {
         gameObject.SetActive(false);
+    }
+
+    // 블록 상태 변화
+    public bool Damaged()
+    {
+        // 데미지
+        IsDamaged = false;
+
+
+        return false;
     }
 }
