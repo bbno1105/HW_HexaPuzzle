@@ -8,8 +8,10 @@ public class UIManager : SingletonBehaviour<UIManager>
     [SerializeField] Text missionCountText;
     [SerializeField] Text playCountText;
     
-    [SerializeField] GameObject clearUI; // 테스트용 UI
-    [SerializeField] Text clearText; // 테스트용 UI
+    // 클리어
+    [SerializeField] GameObject clearUI;
+    [SerializeField] Text clearText;
+
 
     void Awake()
     {

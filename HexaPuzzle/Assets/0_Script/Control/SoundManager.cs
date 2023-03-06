@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class Sound
@@ -26,6 +27,11 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     [SerializeField] AudioSource[] sePlayer;
     public float SEValue { get { return sePlayer[0].volume; } }
 
+    // 사운드 설정
+    [Header("사운드 설정")]
+    [SerializeField] Slider bgmSlider;
+    [SerializeField] Slider seSlider;
+
     void Awake()
     {
         AudioSource[] bgmAudioPlayer = transform.GetChild(0).GetComponents<AudioSource>();
@@ -37,6 +43,12 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         {
             sePlayer[i] = seAudioPlayer[i];
         }
+
+        bgmSlider.value = BGMValue;
+        seSlider.value = SEValue;
+
+        bgmSlider.onValueChanged.AddListener(SetBGMVolume);
+        seSlider.onValueChanged.AddListener(SetSEVolume);
     }
 
     public void PlayBGM(string _soundName)

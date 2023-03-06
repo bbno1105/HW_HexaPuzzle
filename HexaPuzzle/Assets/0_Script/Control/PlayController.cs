@@ -72,7 +72,6 @@ public class PlayController : SingletonBehaviour<PlayController>
         }
 
         SoundManager.Instance.PlayBGM("BGM");
-        SoundManager.Instance.SetBGMVolume(0.5f);
     }
 
     void Update()

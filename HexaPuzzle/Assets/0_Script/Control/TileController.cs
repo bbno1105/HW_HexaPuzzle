@@ -29,7 +29,8 @@ public class TileController : SingletonBehaviour<TileController>
 
     void Awake()
     {
-        tileSize = tilePrefab.GetComponent<RectTransform>().sizeDelta.x;
+        // Referebce Resilution (1080 x 2400)
+        tileSize = 150f * TileMapParent.parent.GetComponent<RectTransform>().localScale.x;
 
         distanceX = tileSize * 1.5f; // 타일 가로 간격
         distanceY = tileSize / 4 * Mathf.Sqrt(3); // 타일 세로 간격 ( 1 : √3 : 2 )
@@ -40,10 +41,14 @@ public class TileController : SingletonBehaviour<TileController>
 
     void Start()
     {
+        Vector2 mapTotlaSize = new Vector2(tileSize + distanceX * (mapSizeX / 2), distanceY + distanceY * mapSizeY);
+       
+        RectTransform canvasRectTransform = TileMapParent.parent.GetComponent<RectTransform>();
+        Vector2 canvasSize = new Vector2(canvasRectTransform.sizeDelta.x * canvasRectTransform.localScale.x, 
+                                         canvasRectTransform.sizeDelta.y * canvasRectTransform.localScale.y);
+        
         // 캔버스 사이즈에 비례하여 중앙에 위치하도록 설정
-        Vector2 mapTotlaSize = new Vector2(tileSize + distanceX * (mapSizeX / 2), distanceY * (mapSizeY / 2 + 1));
-        Vector2 cameraSize = TileMapParent.parent.GetComponent<RectTransform>().sizeDelta;
-        startPosition = new Vector2(tileSize / 2 + cameraSize.x / 2 - mapTotlaSize.x / 2, distanceY + cameraSize.y / 2 - mapTotlaSize.y);
+        startPosition = new Vector2(tileSize / 2 + (canvasSize.x - mapTotlaSize.x) / 2, distanceY + (canvasSize.y - mapTotlaSize.y) / 2);
 
         Initialize();
     }
